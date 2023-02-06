@@ -110,7 +110,7 @@ describe("GET /tickets", () => {
     it("should respond with status 404 when user doesnt have a ticket yet", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
 
       const response = await server.get("/tickets").set("Authorization", `Bearer ${token}`);
 
@@ -120,7 +120,7 @@ describe("GET /tickets", () => {
     it("should respond with status 200 and with ticket data", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
@@ -176,7 +176,7 @@ describe("POST /tickets", () => {
     it("should respond with status 400 when ticketTypeId is not present in body", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
       await createTicketType();
 
       const response = await server.post("/tickets").set("Authorization", `Bearer ${token}`).send({});
@@ -200,7 +200,7 @@ describe("POST /tickets", () => {
     it("should respond with status 201 and with ticket data", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
 
       const response = await server
@@ -231,7 +231,7 @@ describe("POST /tickets", () => {
     it("should insert a new ticket in the database", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
 
       const beforeCount = await prisma.ticket.count();

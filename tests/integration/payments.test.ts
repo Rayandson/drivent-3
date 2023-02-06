@@ -61,7 +61,7 @@ describe("GET /payments", () => {
     it("should respond with status 404 when given ticket doesnt exist", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
 
       const response = await server.get("/payments?ticketId=1").set("Authorization", `Bearer ${token}`);
 
@@ -71,11 +71,11 @@ describe("GET /payments", () => {
     it("should respond with status 401 when user doesnt own given ticket", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
 
       const otherUser = await createUser();
-      const otherUserEnrollment = await createEnrollmentWithAddress(otherUser);
+      const otherUserEnrollment = await createEnrollmentWithAddress(otherUser.id);
       const ticket = await createTicket(otherUserEnrollment.id, ticketType.id, TicketStatus.RESERVED);
 
       const response = await server.get(`/payments?ticketId=${ticket.id}`).set("Authorization", `Bearer ${token}`);
@@ -86,7 +86,7 @@ describe("GET /payments", () => {
     it("should respond with status 200 and with payment data", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
@@ -136,7 +136,7 @@ describe("POST /payments/process", () => {
     it("should respond with status 400 if body param ticketId is missing", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
       await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
@@ -150,7 +150,7 @@ describe("POST /payments/process", () => {
     it("should respond with status 400 if body param cardData is missing", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
@@ -164,7 +164,7 @@ describe("POST /payments/process", () => {
     it("should respond with status 404 when given ticket doesnt exist", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
 
       const body = { ticketId: 1, cardData: generateCreditCardData() };
 
@@ -176,11 +176,11 @@ describe("POST /payments/process", () => {
     it("should respond with status 401 when user doesnt own given ticket", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      await createEnrollmentWithAddress(user);
+      await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
 
       const otherUser = await createUser();
-      const otherUserEnrollment = await createEnrollmentWithAddress(otherUser);
+      const otherUserEnrollment = await createEnrollmentWithAddress(otherUser.id);
       const ticket = await createTicket(otherUserEnrollment.id, ticketType.id, TicketStatus.RESERVED);
 
       const body = { ticketId: ticket.id, cardData: generateCreditCardData() };
@@ -193,7 +193,7 @@ describe("POST /payments/process", () => {
     it("should respond with status 200 and with payment data", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
@@ -216,8 +216,8 @@ describe("POST /payments/process", () => {
     it("should insert a new payment in the database", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createTicketType();
+      const enrollment = await createEnrollmentWithAddress(user.id);
+      const ticketType = await createTicketType(false);
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
       const beforeCount = await prisma.payment.count();
@@ -234,8 +234,8 @@ describe("POST /payments/process", () => {
     it("should set ticket status as PAID", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createTicketType();
+      const enrollment = await createEnrollmentWithAddress(user.id);
+      const ticketType = await createTicketType(true);
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
       const body = { ticketId: ticket.id, cardData: generateCreditCardData() };

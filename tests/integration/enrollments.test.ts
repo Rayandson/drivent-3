@@ -51,7 +51,7 @@ describe("GET /enrollments", () => {
 
     it("should respond with status 200 and enrollment data with address when there is a enrollment for given user", async () => {
       const user = await createUser();
-      const enrollment = await createEnrollmentWithAddress(user);
+      const enrollment = await createEnrollmentWithAddress(user.id);
       const token = await generateValidToken(user);
 
       const response = await server.get("/enrollments").set("Authorization", `Bearer ${token}`);
@@ -165,7 +165,7 @@ describe("POST /enrollments", () => {
 
       it("should respond with status 200 and update enrollment if there is one already", async () => {
         const user = await createUser();
-        const enrollment = await createEnrollmentWithAddress(user);
+        const enrollment = await createEnrollmentWithAddress(user.id);
         const body = generateValidBody();
         const token = await generateValidToken(user);
 

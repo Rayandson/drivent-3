@@ -5,8 +5,11 @@ import { User } from "@prisma/client";
 import { createUser } from "./users-factory";
 import { prisma } from "@/config";
 
-export async function createEnrollmentWithAddress(user?: User) {
-  const incomingUser = user || (await createUser());
+export async function createEnrollmentWithAddress(userId?: number) {
+  let incomingUser;
+  if(!userId) {
+    incomingUser = (await createUser());
+  }
 
   return prisma.enrollment.create({
     data: {
@@ -14,7 +17,7 @@ export async function createEnrollmentWithAddress(user?: User) {
       cpf: generateCPF(),
       birthday: faker.date.past(),
       phone: faker.phone.phoneNumber("(##) 9####-####"),
-      userId: incomingUser.id,
+      userId: userId || incomingUser.id,
       Address: {
         create: {
           street: faker.address.streetName(),
